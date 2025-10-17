@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/aurion-core",
+  "crates/aurion-orch",
+  "crates/aurion-server",
+  "crates/aurion-ai",
+  "crates/aurion-native",
+  "crates/aurion-runner",
+]
+
+# Note: package manifests moved into the `crates/` directory. This file is now a workspace manifest.

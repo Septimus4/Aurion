@@ -1,0 +1,183 @@
+openapi: 3.0.3
+info:
+  title: Aurion IDE REST API
+  version: 0.1.0
+  description: |
+    This OpenAPI specification defines the minimal HTTP and WebSocket surface exposed to the IDE client.  Detailed plugin interactions occur over gRPC; only summary and coordination endpoints are exposed via HTTP/JSON.
+servers:
+  - url: https://localhost:8443/api/v1
+    description: Local development server with TLS
+
+paths:
+  /workspaces:
+    get:
+      summary: List workspaces
+      responses:
+        '200':
+          description: A list of available workspaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workspace'
+    post:
+      summary: Create a new workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewWorkspace'
+      responses:
+        '201':
+          description: Workspace created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+
+  /workspaces/{workspaceId}:
+    get:
+      summary: Get workspace details
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workspace details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+
+  /plugins:
+    get:
+      summary: List registered plugins
+      responses:
+        '200':
+          description: A list of plugins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PluginSummary'
+
+  /jobs:
+    post:
+      summary: Submit a job to the orchestrator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobSubmission'
+      responses:
+        '202':
+          description: Job accepted for execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+
+  /jobs/{jobId}:
+    get:
+      summary: Get the status of a job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+
+  /events:
+    get:
+      summary: Subscribe to real‑time events via WebSocket
+      description: |
+        Establishes a WebSocket connection that streams job events, graph mutations and notifications.  The client must include a bearer token.
+      responses:
+        '101':
+          description: WebSocket upgrade
+
+components:
+  schemas:
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    NewWorkspace:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    PluginSummary:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        risk_class:
+          type: string
+    JobSubmission:
+      type: object
+      required:
+        - plugin_name
+        - target
+        - scope_id
+      properties:
+        plugin_name:
+          type: string
+        version:
+          type: string
+          description: Optional; defaults to latest registered version.
+        target:
+          type: string
+        scope_id:
+          type: string
+        config:
+          type: object
+          additionalProperties: true
+        authorization_bundle:
+          type: string
+          description: Base64‑encoded AuthorizationBundle; required for high‑risk capabilities.
+    JobStatus:
+      type: object
+      properties:
+        job_id:
+          type: string
+        state:
+          type: string
+          enum: [queued, running, completed, failed]
+        success:
+          type: boolean
+        message:
+          type: string
+        cache_hit:
+          type: boolean
+        result:
+          type: object
+          description: Present when state = completed and success = true.

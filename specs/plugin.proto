@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package aurion.plugin.v1;
+
+// PluginInfo describes a plugin's identity and capabilities.
+message PluginInfo {
+  // The canonical name of the plugin (e.g., "nmap").
+  string name = 1;
+  // Semantic version string (e.g., "1.2.3").
+  string version = 2;
+  // Human readable description.
+  string description = 3;
+  // List of capability identifiers (e.g., "PassiveEnum", "PortScan").
+  repeated string capabilities = 4;
+  // Risk class: low, medium, high.
+  string risk_class = 5;
+}
+
+// RegisterRequest is sent by a plugin when it starts up.
+message RegisterRequest {
+  PluginInfo info = 1;
+  // List of supported scope types (cidr/domain/url).
+  repeated string supported_scopes = 2;
+}
+
+// RegisterResponse indicates whether registration was accepted.
+message RegisterResponse {
+  bool accepted = 1;
+  string message = 2;
+}
+
+// JobRequest is sent by the orchestrator to the plugin runner.
+message JobRequest {
+  // Unique identifier for the job.
+  string job_id = 1;
+  // Name of the plugin to run.
+  string plugin_name = 2;
+  // Version of the plugin.
+  string version = 3;
+  // Target identifier (IP address, domain or service ID).
+  string target = 4;
+  // Arbitrary JSON configuration for the plugin.
+  string serialized_config = 5;
+  // Scope identifier; ensures the plugin knows which scope the job belongs to.
+  string scope_id = 6;
+  // Serialized authorization bundle if required; empty for passive jobs.
+  string authorization_bundle = 7;
+}
+
+// JobResult is returned by the plugin when execution completes.
+message JobResult {
+  // Job identifier matching the request.
+  string job_id = 1;
+  // Indicates success or failure of execution.
+  bool success = 2;
+  // The plugin must output a JSON document containing normalized graph mutations.
+  bytes output_json = 3;
+  // Deterministic cache key derived from inputs.
+  string cache_key = 4;
+  // Optional error message when success = false.
+  string error = 5;
+}
+
+// PluginService defines RPCs exposed by plugin processes.
+service PluginService {
+  // Registers a plugin with the orchestrator.  Called once at startup.
+  rpc RegisterPlugin(RegisterRequest) returns (RegisterResponse);
+  // Executes a job and returns the result.
+  rpc ExecuteJob(JobRequest) returns (JobResult);
+}

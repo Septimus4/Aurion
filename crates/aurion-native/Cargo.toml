@@ -1,0 +1,11 @@
+[package]
+name = "aurion-native"
+version = "0.1.0"
+edition = "2021"
+authors = ["Aurion"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+

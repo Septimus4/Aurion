@@ -1,0 +1,92 @@
+/target
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor temp files
+*~
+*.swp
+*.swo
+
+# Rust / Cargo artifacts (excluding `target` already in repo)
+**/*.rs.bk
+*.rlib
+*.rmeta
+*.dSYM
+*.profraw
+
+# Cargo/tooling caches
+.cargo/
+.sccache/
+
+# wasm-pack output
+pkg/
+
+# Node / frontend
+node_modules/
+
+# Coverage / test artifacts
+coverage/
+*.lcov
+
+# Generated docs/build output
+docs/build/
+
+# Java / Kotlin / IntelliJ plugin build outputs
+.gradle/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.keystore
+
+# Gradle wrapper
+gradle/wrapper/gradle-wrapper.jar
+
+# Protobuf / generated code
+**/*.pb.rs
+**/*_pb2.py
+**/*.pb.go
+**/*.pb.dart
+
+# Python venvs
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+
+# Docker
+docker-compose.override.yml
+
+# Secrets / env
+.env
+.env.local
+
+# Native / C / C++ build artifacts
+**/build/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/*.o
+**/*.so
+**/*.a
+**/*.dll
+**/*.dylib
+
+# Plugin and client scaffolds
+clients/**/build/
+plugins/**/target/
+plugins/**/pkg/
+
+# Misc
+*.log
